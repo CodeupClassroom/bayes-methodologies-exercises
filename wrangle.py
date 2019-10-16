@@ -28,5 +28,5 @@ def wrangle_telco():
     df = clean_data(df)
     return df
     
-def wrangle_telco():
-    return clean_data(get_data_from_mysql())
+#def wrangle_telco():
+   # return clean_data(get_data_from_mysql())
