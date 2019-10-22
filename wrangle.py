@@ -28,5 +28,14 @@ def wrangle_telco():
     df = clean_data(df)
     return df
 
+
+def get_titanic_data():
+    query = '''
+    SELECT *
+    FROM passengers
+    '''
+    df = pd.read_sql(query, get_db_url('titanic_db'))
+    return df
+
 #def wrangle_telco():
    # return clean_data(get_data_from_mysql())
