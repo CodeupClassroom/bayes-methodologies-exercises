@@ -1,56 +1,74 @@
 #Do your work for this in a file named `prepare`.
 #1)Use the function defined in `aquire.py` to load the iris data.
-from aquire import get_iris_data
-from aquire import get_titanic_data
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import MinMaxScaler 
-iris_df=get_iris_data()
-#1a) Drop the `species_id` and `measurement_id` columns.
-def drop_columns(df):
-    return df.drop(columns=['species_id','measurement_id'])
-#1b) Rename the `species_name` column to just `species`.
+
+import pandas as pd
+import numpy as np
+import scipy as sp 
+
+from sklearn.model_selection import train_test_split
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, MinMaxScaler
+
+
 def rename_columns(df):
     df['species']=df['species_name']
     return df
-#1c)Encode the species name using a sklearn encoder. Research the inverse_transform method
-#of the label encoder.How might this be useful.
-def encode_columns(df):
-    encoder=LabelEncoder()
-    encoder.fit(df.species)
-    df.species=encoder.transform(df.species)
-    return df,encoder
-#create a function that accepts the untransformed iris
-#data, and returns the data with the transformations above applied.
-def prep_iris(df):
-    df=df.pipe(drop_columns).pipe(rename_columns).pipe(encode_columns)
-    return df 
-# Titanic Data
-# Use the function you defined in aquire.py to load the titanic data set    
-df=get_titanic_data()
-# 2a) Handle the missing values in the `embark_town` and `embarked`columns.
-def titanic_missing_fill(df):
-    df.embark_town.fillna('Other',inplace=True)
-    df.embarked.fillna('Unknown',inplace=True)
-    return df
-# 2b) Remove the deck column.
-def titanic_remove_columns(df):
-    return df.drop(columns=['deck'])
-# 2c) Use a label encoder to transform the `embarked` column
-def encode_titanic(df):
-    encoder_titanic=LabelEncoder()
-    encoder_titanic.fit(titanic_df.embarked)
-    titanic_df=encoder_titanic.transform(titanic_df.embarked)
-    return titanic_df,encoder_titanic
-# 2d) Scale the `age` and `fare` columns using a min/max scaler.
-def scale_titanic(df):
-    scaled=MinMaxScaler()
-    scaled.fit(df[['age','fare']])
-    df[['age','fare']]=scaled.transform(df[['age','fare']])
-    return df,scaled
-#Why might this be beneficial? When might this be beneficial? When might you not
-#want to do this?
-#Create a function named prep_titanic that accepts the untransformed titanic data,
-#and returns the data with the transformations above applied
-def prep_titanic(df):
-    df=df.pipe(titanic_missing_fill).pipe(titanic_remove_columns).pipe(encode_titanic).pipe(scale_titanic)
-    return df
+
+def split(df, target, train_prop, seed):
+    return train_test_split(df, train_size=train_prop, stratify=df[target], random_state=seed)
+
+def impute(train, test, my_strategy, column_list):
+    imputer = SimpleImputer(strategy=my_strategy)
+    train[column_list] = imputer.fit_transform(train[column_list])
+    test[column_list] = imputer.transform(test[column_list])
+    return train, test, imputer
+
+def encode(train, test, col_name):
+    encoded_values = sorted(list(train[col_name].unique()))
+    
+    # Integer Encoding
+    int_encoder = LabelEncoder()
+    train.encoded = int_encoder.fit_transform(train[col_name])
+    test.encoded = int_encoder.transform(test[col_name])
+    
+    # create 2D np arrays of the encoded variable (in train and test)
+    train_array = np.array(train.encoded).reshape(len(train.encoded),1)
+    test_array = np.array(test.encoded).reshape(len(test.encoded),1)
+
+    # One Hot Encoding
+    ohe = OneHotEncoder(sparse=False, categories='auto')
+    train_ohe = ohe.fit_transform(train_array)
+    test_ohe = ohe.transform(test_array)
+    
+    # Turn the array of new values into a data frame with columns names being the values
+    # and index matching that of train/test
+    # then merge the new dataframe with the existing train/test dataframe
+    train_encoded = pd.DataFrame(data=train_ohe,
+                            columns=encoded_values, index=train.index)
+    train = train.join(train_encoded)
+    test_encoded = pd.DataFrame(data=test_ohe,
+                               columns=encoded_values, index=test.index)
+    test = test.join(test_encoded)
+    return train, test, int_encoder, ohe
+
+def scale_minmax(train, test, column_list):
+    scaler = MinMaxScaler()
+    column_list_scaled = [col + '_scaled' for col in column_list]
+    train_scaled = pd.DataFrame(scaler.fit_transform(train[column_list]), 
+                                columns = column_list_scaled, 
+                                index = train.index)
+    train = train.join(train_scaled)
+    test_scaled = pd.DataFrame(scaler.transform(test[column_list]), 
+                                columns = column_list_scaled, 
+                                index = test.index)
+    test = test.join(test_scaled)
+    return train, test, scaler
+
+def prepare(df, drop_cols, target, train_prop, seed, impute_cols, impute_strategy, encode_col, scale_cols):
+    df.fillna(np.nan, inplace=True)
+    df.drop(columns=drop_cols, inplace=True)
+    train, test = split(df=df, target=target, train_prop=train_prop, seed=seed)
+    train, test, imputer = impute(train, test, my_strategy=impute_strategy, column_list=impute_cols)
+    train, test, int_encoder, ohe = encode(train, test, col_name = encode_col)
+    train, test, scaler = scale_minmax(train, test, column_list = scale_cols)
+    return df, train, test, imputer, int_encoder, ohe, scaler
