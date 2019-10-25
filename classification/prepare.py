@@ -1,7 +1,7 @@
 #Do your work for this in a file named `prepare`.
 #1)Use the function defined in `aquire.py` to load the iris data.
-from aquire import get_iris_data
-from aquire import get_titanic_data
+from acquire import get_iris_data
+from acquire import get_titanic_data
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import MinMaxScaler 
 iris_df=get_iris_data()
@@ -38,19 +38,20 @@ def titanic_remove_columns(df):
 # 2c) Use a label encoder to transform the `embarked` column
 def encode_titanic(df):
     encoder_titanic=LabelEncoder()
-    encoder_titanic.fit(titanic_df.embarked)
-    titanic_df=encoder_titanic.transform(titanic_df.embarked)
-    return titanic_df,encoder_titanic
+    encoder_titanic.fit(df.embarked)
+    df['embarked']=encoder_titanic.transform(df.embarked)
+    return df
 # 2d) Scale the `age` and `fare` columns using a min/max scaler.
 def scale_titanic(df):
     scaled=MinMaxScaler()
     scaled.fit(df[['age','fare']])
     df[['age','fare']]=scaled.transform(df[['age','fare']])
-    return df,scaled
+    return df
 #Why might this be beneficial? When might this be beneficial? When might you not
 #want to do this?
 #Create a function named prep_titanic that accepts the untransformed titanic data,
 #and returns the data with the transformations above applied
 def prep_titanic(df):
-    df=df.pipe(titanic_missing_fill).pipe(titanic_remove_columns).pipe(encode_titanic).pipe(scale_titanic)
+    df=df.pipe(titanic_missing_fill).pipe(titanic_remove_columns).pipe(encode_titanic)\
+    .pipe(scale_titanic)
     return df
