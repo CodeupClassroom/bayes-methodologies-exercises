@@ -55,3 +55,8 @@ def prep_titanic(df):
     df=df.pipe(titanic_missing_fill).pipe(titanic_remove_columns).pipe(encode_titanic)\
     .pipe(scale_titanic)
     return df
+
+def prep_titanic_unscaled_age(df):
+    df=df.pipe(titanic_missing_fill).pipe(titanic_remove_columns).pipe(encode_titanic)
+    return df
+    
