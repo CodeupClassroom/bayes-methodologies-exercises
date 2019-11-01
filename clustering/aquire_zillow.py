@@ -97,6 +97,10 @@ WHERE Z.latitude IS NOT NULL AND Z.longitude IS NOT NULL '''
 def get_zillow_data():
     return pd.read_sql(zillow_sql,get_connection('zillow'))
 
+
+
+
+
 #3)Save the dataframe as a .csv file locally.
 #Test these functions by creating a seperate jupyter notebook,importing your `acquire` module
 #and calling the functions in it
