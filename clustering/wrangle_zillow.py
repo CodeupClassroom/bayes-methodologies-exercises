@@ -10,4 +10,5 @@ def wrangle_zillow_data():
     df=get_zillow_data()
     df=zillow_single_unit()
     df=handle_missing_values(df)
+    df.dropna(inplace=True)
     return df
