@@ -8,7 +8,8 @@ from prepare_zillow import fill_missing_values
 
 def wrangle_zillow_data():
     df=get_zillow_data()
-    df=zillow_single_unit()
+    df=zillow_single_unit(df)
+    df=remove_columns(df,['calculatedbathnbr','finishedsquarefeet12','fullbathcnt','propertycountylandusecode','unitcnt','structuretaxvaluedollarcnt','landtaxvaluedollarcnt','assessmentyear','propertyzoningdesc'])
     df=handle_missing_values(df)
     df.dropna(inplace=True)
     return df

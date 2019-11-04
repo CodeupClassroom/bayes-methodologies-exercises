@@ -11,7 +11,9 @@ You might want to use bedrooms, square feet, unit type or the like to then ident
  """
 def zillow_single_unit(df):
     criteria_1=df.propertylandusedesc=='Single Family Residential'
-    criteria_2=df.unitcnt==1 | df.unitcnt.isna()
+    #criteria_2=df.unitcnt==1 | df.unitcnt.isna()
+    #criteria_2=df.unitcnt==1 & calculatedfinishedsquarefeet>500
+    criteria_2=df.calculatedfinishedsquarefeet>500
     df=df[(criteria_1) & (criteria_2)]
     return df
 
@@ -32,7 +34,7 @@ def remove_columns(df, cols_to_remove):
     df = df.drop(columns=cols_to_remove)
     return df
 
-def handle_missing_values(df, prop_required_column = .5, prop_required_row = .75):
+def handle_missing_values(df, prop_required_column = .5, prop_required_row = .60):
     threshold = int(round(prop_required_column*len(df.index),0))
     df.dropna(axis=1, thresh=threshold, inplace=True)
     threshold = int(round(prop_required_row*len(df.columns),0))
