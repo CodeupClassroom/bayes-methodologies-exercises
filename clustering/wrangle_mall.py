@@ -20,7 +20,9 @@ def split_my_data(df,perc_test,random_seed):
     X_train,X_test=train_test_split(df,test_size=perc_test,random_state=random_seed)
     return X_train,X_test
 
-#3)
+#3)d
+def ohe(cat_var):
+    
 
 
 
