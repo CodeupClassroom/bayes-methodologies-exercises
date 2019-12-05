@@ -62,6 +62,3 @@ def make_new_request():
     df.to_csv('inshorts_news_articles.csv') 
 
     return df
-
-
-print(get_news_articles())
