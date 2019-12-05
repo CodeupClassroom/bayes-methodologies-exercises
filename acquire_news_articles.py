@@ -5,16 +5,13 @@ import os
 import pandas as pd
 
 def get_news_articles():
+    filename = 'inshorts_news_articles.csv'
 
-    return make_new_request()
-
-    # filename = 'inshorts_news_articles.csv'
-
-    # # check for presence of the file or make a new request
-    # if os.path.exists(filename):
-    #     return pd.read_csv(filename)
-    # else:
-    #     return make_new_request()
+    # check for presence of the file or make a new request
+    if os.path.exists(filename):
+        return pd.read_csv(filename)
+    else:
+        return make_new_request()
 
 def get_articles_from_topic(url):
     headers = {'user-agent': 'Codeup Bayes Instructor Example'}
