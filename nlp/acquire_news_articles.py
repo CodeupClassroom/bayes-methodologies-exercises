@@ -24,14 +24,14 @@ def get_articles_from_topic(url):
 
     for article in articles: 
         title = article.select("[itemprop='headline']")[0].get_text()
-        content = article.select("[itemprop='articleBody']")[0].get_text()
+        body = article.select("[itemprop='articleBody']")[0].get_text()
         author = article.select(".author")[0].get_text()
         published_date = article.select(".time")[0]["content"]
         category = response.url.split("/")[-1]
 
         article_data = {
             'title': title,
-            'content': content,
+            'body': body,
             'category': category,
             'author': author,
             'published_date': published_date,
@@ -56,8 +56,6 @@ def make_new_request():
         # We use .extend in order to make a flat output list.
         output.extend(get_articles_from_topic(url))
 
-    print("stuff")
-    print(output)
     df = pd.DataFrame(output)
     df.to_csv('inshorts_news_articles.csv') 
 
